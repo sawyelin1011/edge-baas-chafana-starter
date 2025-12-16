@@ -2,6 +2,7 @@
   "name": "@edge-baas/cli",
   "version": "0.1.0",
   "description": "Edge-BaaS CLI for generating APIs from YAML configs",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "edge-baas": "dist/index.js"

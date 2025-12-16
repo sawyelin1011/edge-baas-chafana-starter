@@ -1,18 +1,17 @@
 {
-  "name": "@edge-baas/starter",
+  "name": "my-api",
   "version": "0.1.0",
-  "description": "Starter template for Edge-BaaS projects",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
     "start": "wrangler dev",
     "cf-typegen": "wrangler types",
     "build": "tsc",
-    "validate": "edge-baas validate config/*.yaml",
-    "generate": "edge-baas generate config/*.yaml",
     "db:migrate": "wrangler d1 execute your-db-name --file=./migrations/001_initial_tables.sql",
-    "db:seed": "wrangler d1 execute your-db-name --file=./migrations/004_seed_data.sql"
+    "db:seed": "wrangler d1 execute your-db-name --file=./migrations/004_seed_data.sql",
+    "validate": "edge-baas validate config/*.yaml",
+    "generate": "edge-baas generate config/*.yaml"
   },
   "dependencies": {
     "chanfana": "^2.6.3",

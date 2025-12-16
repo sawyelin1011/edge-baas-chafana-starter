@@ -12,7 +12,7 @@ export class GenerateCommand {
       .argument('<files...>', 'Configuration files to generate from')
       .option('-o, --output <dir>', 'Output directory', './src/generated')
       .option('--overwrite', 'Overwrite existing files')
-      .action(this.generateCode);
+      .action((files, options) => GenerateCommand.generateCode(files || [], options));
   }
 
   static async generateCode(files: string[], options: any) {
