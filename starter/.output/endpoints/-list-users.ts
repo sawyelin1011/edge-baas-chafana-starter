@@ -1,26 +1,26 @@
 import { D1ListEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { CommentsSchema } from '../schemas/comments.js';
-import { CommentsQuerySchema } from '../schemas/comments.js';
+import { UserSchema } from '../schemas/user.js';
+import { UserQuerySchema } from '../schemas/user.js';
 
-export class ListCommentss extends D1ListEndpoint {
+export class ListUsers extends D1ListEndpoint {
   _meta = { 
     model: { 
-      schema: CommentsSchema, 
+      schema: UserSchema, 
       primaryKeys: ['id'], 
-      tableName: 'commentss' 
+      tableName: 'users' 
     } 
   };
   
   dbName = 'DB';
   
-  filterFields = ['approved'];
+  filterFields = ['active'];
   searchFields = [];
   orderByFields = [];
 
   async handle(c: Context): Promise<Response> {
     const queryParams = Object.fromEntries(new URL(c.req.url).searchParams);
-    const validatedQuery = CommentsQuerySchema.parse(queryParams);
+    const validatedQuery = UserQuerySchema.parse(queryParams);
     
     return super.handle(c);
   }

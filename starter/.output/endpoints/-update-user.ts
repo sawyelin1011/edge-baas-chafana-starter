@@ -1,13 +1,13 @@
 import { D1UpdateEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { CommentsSchema, UpdateCommentsRequestSchema } from '../schemas/comments.js';
+import { UserSchema, UpdateUserRequestSchema } from '../schemas/user.js';
 
-export class UpdateComments extends D1UpdateEndpoint {
+export class UpdateUser extends D1UpdateEndpoint {
   _meta = { 
     model: { 
-      schema: CommentsSchema, 
+      schema: UserSchema, 
       primaryKeys: ['id'], 
-      tableName: 'commentss' 
+      tableName: 'users' 
     } 
   };
   
@@ -15,7 +15,7 @@ export class UpdateComments extends D1UpdateEndpoint {
 
   async handle(c: Context): Promise<Response> {
     const requestData = await c.req.json();
-    const validatedData = UpdateCommentsRequestSchema.parse(requestData);
+    const validatedData = UpdateUserRequestSchema.parse(requestData);
     
     // Add updated timestamp
     const finalData = {

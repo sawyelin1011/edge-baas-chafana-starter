@@ -1,29 +1,31 @@
-export const PostsSchema = z.object({
+export const PostSchema = z.object({
   title: z.string().min(3).max(200),
   slug: z.string(),
   content: z.string(),
   excerpt: z.string().max(500),
-  authorId: z.string().uuid(),
+  userId: z.string().uuid(),
   published: z.boolean(),
   publishedAt: z.string().datetime(),
   tags: z.record(z.any()),
-  views: z.number().int(),
+  viewCount: z.number().int(),
+  status: z.enum(['draft', 'published', 'archived']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime()
 });
 
-export type Posts = z.infer<typeof PostsSchema>;
+export type Post = z.infer<typeof PostSchema>;
 
-export const CreatePostsSchema = z.object({
+export const CreatePostSchema = z.object({
   title: z.string().min(3).max(200),
   slug: z.string(),
   content: z.string(),
   excerpt: z.string().max(500),
-  authorId: z.string().uuid(),
+  userId: z.string().uuid(),
   published: z.boolean(),
   publishedAt: z.string().datetime(),
   tags: z.record(z.any()),
-  views: z.number().int()
+  viewCount: z.number().int(),
+  status: z.enum(['draft', 'published', 'archived'])
 });
 
-export type CreatePosts = z.infer<typeof CreatePostsSchema>;
+export type CreatePost = z.infer<typeof CreatePostSchema>;

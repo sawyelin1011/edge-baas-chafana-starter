@@ -1,13 +1,13 @@
 import { D1ReadEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { PostsSchema } from '../schemas/posts.js';
+import { UserSchema } from '../schemas/user.js';
 
-export class GetPosts extends D1ReadEndpoint {
+export class GetUser extends D1ReadEndpoint {
   _meta = { 
     model: { 
-      schema: PostsSchema, 
+      schema: UserSchema, 
       primaryKeys: ['id'], 
-      tableName: 'postss' 
+      tableName: 'users' 
     } 
   };
   

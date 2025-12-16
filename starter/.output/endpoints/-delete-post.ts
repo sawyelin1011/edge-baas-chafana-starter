@@ -1,13 +1,13 @@
 import { D1DeleteEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { AuthorsSchema } from '../schemas/authors.js';
+import { PostSchema } from '../schemas/post.js';
 
-export class DeleteAuthors extends D1DeleteEndpoint {
+export class DeletePost extends D1DeleteEndpoint {
   _meta = { 
     model: { 
-      schema: AuthorsSchema, 
+      schema: PostSchema, 
       primaryKeys: ['id'], 
-      tableName: 'authorss' 
+      tableName: 'posts' 
     } 
   };
   

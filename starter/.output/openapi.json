@@ -1,29 +1,48 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "blog-api",
+    "title": "edge-baas-api",
     "version": "1.0.0",
-    "description": "A blog API with posts, comments, and authors"
+    "description": "Edge-BaaS generated API"
   },
+  "servers": [
+    {
+      "url": "http://localhost:8787",
+      "description": "Development server"
+    }
+  ],
   "paths": {
-    "/authorss": {
+    "/users": {
       "get": {
-        "summary": "List authorss",
-        "operationId": "listAuthorss",
+        "summary": "List users",
+        "operationId": "listUsers",
+        "tags": [
+          "User"
+        ],
         "parameters": [
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 10
             }
           },
           {
             "name": "offset",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query"
           }
         ],
         "responses": {
@@ -37,10 +56,16 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Authors"
+                        "$ref": "#/components/schemas/User"
                       }
                     },
                     "total": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
                       "type": "integer"
                     }
                   }
@@ -51,14 +76,17 @@
         }
       },
       "post": {
-        "summary": "Create authors",
-        "operationId": "createAuthors",
+        "summary": "Create user",
+        "operationId": "createUser",
+        "tags": [
+          "User"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthorsCreate"
+                "$ref": "#/components/schemas/UserCreate"
               }
             }
           }
@@ -69,7 +97,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Authors"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -77,10 +105,13 @@
         }
       }
     },
-    "/authorss/{id}": {
+    "/users/{id}": {
       "get": {
-        "summary": "Get authors",
-        "operationId": "getAuthors",
+        "summary": "Get user",
+        "operationId": "getUser",
+        "tags": [
+          "User"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -97,16 +128,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Authors"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "put": {
-        "summary": "Update authors",
-        "operationId": "updateAuthors",
+        "summary": "Update user",
+        "operationId": "updateUser",
+        "tags": [
+          "User"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -122,7 +159,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AuthorsUpdate"
+                "$ref": "#/components/schemas/UserUpdate"
               }
             }
           }
@@ -133,16 +170,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Authors"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "delete": {
-        "summary": "Delete authors",
-        "operationId": "deleteAuthors",
+        "summary": "Delete user",
+        "operationId": "deleteUser",
+        "tags": [
+          "User"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -156,28 +199,44 @@
         "responses": {
           "204": {
             "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       }
     },
-    "/postss": {
+    "/posts": {
       "get": {
-        "summary": "List postss",
-        "operationId": "listPostss",
+        "summary": "List posts",
+        "operationId": "listPosts",
+        "tags": [
+          "Post"
+        ],
         "parameters": [
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 10
             }
           },
           {
             "name": "offset",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query"
           }
         ],
         "responses": {
@@ -191,10 +250,16 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Posts"
+                        "$ref": "#/components/schemas/Post"
                       }
                     },
                     "total": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
                       "type": "integer"
                     }
                   }
@@ -205,14 +270,17 @@
         }
       },
       "post": {
-        "summary": "Create posts",
-        "operationId": "createPosts",
+        "summary": "Create post",
+        "operationId": "createPost",
+        "tags": [
+          "Post"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PostsCreate"
+                "$ref": "#/components/schemas/PostCreate"
               }
             }
           }
@@ -223,7 +291,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Posts"
+                  "$ref": "#/components/schemas/Post"
                 }
               }
             }
@@ -231,10 +299,13 @@
         }
       }
     },
-    "/postss/{id}": {
+    "/posts/{id}": {
       "get": {
-        "summary": "Get posts",
-        "operationId": "getPosts",
+        "summary": "Get post",
+        "operationId": "getPost",
+        "tags": [
+          "Post"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -251,16 +322,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Posts"
+                  "$ref": "#/components/schemas/Post"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "put": {
-        "summary": "Update posts",
-        "operationId": "updatePosts",
+        "summary": "Update post",
+        "operationId": "updatePost",
+        "tags": [
+          "Post"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -276,7 +353,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PostsUpdate"
+                "$ref": "#/components/schemas/PostUpdate"
               }
             }
           }
@@ -287,16 +364,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Posts"
+                  "$ref": "#/components/schemas/Post"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "delete": {
-        "summary": "Delete posts",
-        "operationId": "deletePosts",
+        "summary": "Delete post",
+        "operationId": "deletePost",
+        "tags": [
+          "Post"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -310,28 +393,44 @@
         "responses": {
           "204": {
             "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       }
     },
-    "/commentss": {
+    "/comments": {
       "get": {
-        "summary": "List commentss",
-        "operationId": "listCommentss",
+        "summary": "List comments",
+        "operationId": "listComments",
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 10
             }
           },
           {
             "name": "offset",
             "in": "query",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 0
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query"
           }
         ],
         "responses": {
@@ -345,10 +444,16 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Comments"
+                        "$ref": "#/components/schemas/Comment"
                       }
                     },
                     "total": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
                       "type": "integer"
                     }
                   }
@@ -359,14 +464,17 @@
         }
       },
       "post": {
-        "summary": "Create comments",
-        "operationId": "createComments",
+        "summary": "Create comment",
+        "operationId": "createComment",
+        "tags": [
+          "Comment"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommentsCreate"
+                "$ref": "#/components/schemas/CommentCreate"
               }
             }
           }
@@ -377,7 +485,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Comments"
+                  "$ref": "#/components/schemas/Comment"
                 }
               }
             }
@@ -385,10 +493,13 @@
         }
       }
     },
-    "/commentss/{id}": {
+    "/comments/{id}": {
       "get": {
-        "summary": "Get comments",
-        "operationId": "getComments",
+        "summary": "Get comment",
+        "operationId": "getComment",
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -405,16 +516,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Comments"
+                  "$ref": "#/components/schemas/Comment"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "put": {
-        "summary": "Update comments",
-        "operationId": "updateComments",
+        "summary": "Update comment",
+        "operationId": "updateComment",
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -430,7 +547,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CommentsUpdate"
+                "$ref": "#/components/schemas/CommentUpdate"
               }
             }
           }
@@ -441,16 +558,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Comments"
+                  "$ref": "#/components/schemas/Comment"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       },
       "delete": {
-        "summary": "Delete comments",
-        "operationId": "deleteComments",
+        "summary": "Delete comment",
+        "operationId": "deleteComment",
+        "tags": [
+          "Comment"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -464,6 +587,9 @@
         "responses": {
           "204": {
             "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
           }
         }
       }
@@ -471,29 +597,33 @@
   },
   "components": {
     "schemas": {
-      "Authors": {
+      "User": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "email": {
             "type": "string",
             "format": "email"
           },
-          "name": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "fullName": {
             "type": "string",
             "minLength": 2
-          },
-          "bio": {
-            "type": "string"
           },
           "avatar": {
             "type": "string",
             "format": "uri"
           },
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           },
           "createdAt": {
             "type": "string",
@@ -505,61 +635,69 @@
           }
         }
       },
-      "AuthorsCreate": {
+      "UserCreate": {
         "type": "object",
         "required": [
           "email",
-          "name"
+          "username",
+          "fullName"
         ],
         "properties": {
           "email": {
             "type": "string",
             "format": "email"
           },
-          "name": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "fullName": {
             "type": "string",
             "minLength": 2
-          },
-          "bio": {
-            "type": "string"
           },
           "avatar": {
             "type": "string",
             "format": "uri"
           },
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           }
         }
       },
-      "AuthorsUpdate": {
+      "UserUpdate": {
         "type": "object",
         "properties": {
           "email": {
             "type": "string",
             "format": "email"
           },
-          "name": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "fullName": {
             "type": "string",
             "minLength": 2
-          },
-          "bio": {
-            "type": "string"
           },
           "avatar": {
             "type": "string",
             "format": "uri"
           },
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
           }
         }
       },
-      "Posts": {
+      "Post": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "title": {
             "type": "string",
@@ -576,22 +714,34 @@
             "type": "string",
             "maxLength": 500
           },
-          "authorId": {
+          "userId": {
             "type": "string",
             "format": "uuid"
           },
           "published": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
           },
           "tags": {
-            "type": "object"
+            "type": "object",
+            "default": "[]"
           },
-          "views": {
-            "type": "integer"
+          "viewCount": {
+            "type": "integer",
+            "default": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "default": "draft"
           },
           "createdAt": {
             "type": "string",
@@ -603,13 +753,13 @@
           }
         }
       },
-      "PostsCreate": {
+      "PostCreate": {
         "type": "object",
         "required": [
           "title",
           "slug",
           "content",
-          "authorId"
+          "userId"
         ],
         "properties": {
           "title": {
@@ -627,26 +777,38 @@
             "type": "string",
             "maxLength": 500
           },
-          "authorId": {
+          "userId": {
             "type": "string",
             "format": "uuid"
           },
           "published": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
           },
           "tags": {
-            "type": "object"
+            "type": "object",
+            "default": "[]"
           },
-          "views": {
-            "type": "integer"
+          "viewCount": {
+            "type": "integer",
+            "default": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "default": "draft"
           }
         }
       },
-      "PostsUpdate": {
+      "PostUpdate": {
         "type": "object",
         "properties": {
           "title": {
@@ -664,50 +826,60 @@
             "type": "string",
             "maxLength": 500
           },
-          "authorId": {
+          "userId": {
             "type": "string",
             "format": "uuid"
           },
           "published": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
           },
           "tags": {
-            "type": "object"
+            "type": "object",
+            "default": "[]"
           },
-          "views": {
-            "type": "integer"
+          "viewCount": {
+            "type": "integer",
+            "default": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "default": "draft"
           }
         }
       },
-      "Comments": {
+      "Comment": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "postId": {
             "type": "string",
             "format": "uuid"
           },
-          "authorEmail": {
+          "userId": {
             "type": "string",
-            "format": "email"
-          },
-          "authorName": {
-            "type": "string",
-            "minLength": 2
+            "format": "uuid"
           },
           "content": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 1000
+            "maxLength": 2000
           },
           "approved": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "createdAt": {
             "type": "string",
@@ -719,12 +891,11 @@
           }
         }
       },
-      "CommentsCreate": {
+      "CommentCreate": {
         "type": "object",
         "required": [
           "postId",
-          "authorEmail",
-          "authorName",
+          "userId",
           "content"
         ],
         "properties": {
@@ -732,46 +903,40 @@
             "type": "string",
             "format": "uuid"
           },
-          "authorEmail": {
+          "userId": {
             "type": "string",
-            "format": "email"
-          },
-          "authorName": {
-            "type": "string",
-            "minLength": 2
+            "format": "uuid"
           },
           "content": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 1000
+            "maxLength": 2000
           },
           "approved": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       },
-      "CommentsUpdate": {
+      "CommentUpdate": {
         "type": "object",
         "properties": {
           "postId": {
             "type": "string",
             "format": "uuid"
           },
-          "authorEmail": {
+          "userId": {
             "type": "string",
-            "format": "email"
-          },
-          "authorName": {
-            "type": "string",
-            "minLength": 2
+            "format": "uuid"
           },
           "content": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 1000
+            "maxLength": 2000
           },
           "approved": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           }
         }
       }

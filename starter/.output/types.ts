@@ -1,42 +1,42 @@
 type Env = { DB: D1Database };
 
-export type Authors = z.infer<typeof AuthorsSchema>;
-export const CreateAuthorsSchema = z.object({
+export type User = z.infer<typeof UserSchema>;
+export const CreateUserSchema = z.object({
   email: z.string().email(),
-  name: z.string().min(2),
-  bio: z.string(),
+  username: z.string().min(3).max(50),
+  fullName: z.string().min(2),
   avatar: z.string().url(),
   active: z.boolean()
 });
-export type CreateAuthors = z.infer<typeof CreateAuthorsSchema>;
+export type CreateUser = z.infer<typeof CreateUserSchema>;
 
-export type Posts = z.infer<typeof PostsSchema>;
-export const CreatePostsSchema = z.object({
+export type Post = z.infer<typeof PostSchema>;
+export const CreatePostSchema = z.object({
   title: z.string().min(3).max(200),
   slug: z.string(),
   content: z.string(),
   excerpt: z.string().max(500),
-  authorId: z.string().uuid(),
+  userId: z.string().uuid(),
   published: z.boolean(),
   publishedAt: z.string().datetime(),
   tags: z.record(z.any()),
-  views: z.number().int()
+  viewCount: z.number().int(),
+  status: z.enum(['draft', 'published', 'archived'])
 });
-export type CreatePosts = z.infer<typeof CreatePostsSchema>;
+export type CreatePost = z.infer<typeof CreatePostSchema>;
 
-export type Comments = z.infer<typeof CommentsSchema>;
-export const CreateCommentsSchema = z.object({
+export type Comment = z.infer<typeof CommentSchema>;
+export const CreateCommentSchema = z.object({
   postId: z.string().uuid(),
-  authorEmail: z.string().email(),
-  authorName: z.string().min(2),
-  content: z.string().min(1).max(1000),
+  userId: z.string().uuid(),
+  content: z.string().min(1).max(2000),
   approved: z.boolean()
 });
-export type CreateComments = z.infer<typeof CreateCommentsSchema>;
+export type CreateComment = z.infer<typeof CreateCommentSchema>;
 
 // Combined type for all resources
 export type Resources = {
-  authors: Authors;
-  posts: Posts;
-  comments: Comments;
+  user: User;
+  post: Post;
+  comment: Comment;
 };

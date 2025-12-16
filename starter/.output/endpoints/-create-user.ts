@@ -1,13 +1,13 @@
 import { D1CreateEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { AuthorsSchema, CreateAuthorsSchema } from '../schemas/authors.js';
+import { UserSchema, CreateUserSchema } from '../schemas/user.js';
 
-export class CreateAuthors extends D1CreateEndpoint {
+export class CreateUser extends D1CreateEndpoint {
   _meta = { 
     model: { 
-      schema: AuthorsSchema, 
+      schema: UserSchema, 
       primaryKeys: ['id'], 
-      tableName: 'authorss' 
+      tableName: 'users' 
     } 
   };
   
@@ -19,7 +19,7 @@ export class CreateAuthors extends D1CreateEndpoint {
 
   async handle(c: Context): Promise<Response> {
     const requestData = await c.req.json();
-    const validatedData = CreateAuthorsSchema.parse(requestData);
+    const validatedData = CreateUserSchema.parse(requestData);
     
     // Add default values and timestamps
     const finalData = {

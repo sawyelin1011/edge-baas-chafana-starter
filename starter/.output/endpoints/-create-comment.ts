@@ -1,25 +1,31 @@
-import { D1UpdateEndpoint } from 'chanfana';
+import { D1CreateEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { AuthorsSchema, UpdateAuthorsRequestSchema } from '../schemas/authors.js';
+import { CommentSchema, CreateCommentSchema } from '../schemas/comment.js';
 
-export class UpdateAuthors extends D1UpdateEndpoint {
+export class CreateComment extends D1CreateEndpoint {
   _meta = { 
     model: { 
-      schema: AuthorsSchema, 
+      schema: CommentSchema, 
       primaryKeys: ['id'], 
-      tableName: 'authorss' 
+      tableName: 'comments' 
     } 
   };
   
   dbName = 'DB';
 
+  constructor() {
+    super();
+  }
+
   async handle(c: Context): Promise<Response> {
     const requestData = await c.req.json();
-    const validatedData = UpdateAuthorsRequestSchema.parse(requestData);
+    const validatedData = CreateCommentSchema.parse(requestData);
     
-    // Add updated timestamp
+    // Add default values and timestamps
     const finalData = {
+      id: crypto.randomUUID(),
       ...validatedData,
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 

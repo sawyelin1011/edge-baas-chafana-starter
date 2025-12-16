@@ -1,20 +1,20 @@
 import { fromHono } from 'chanfana';
 import { Hono } from 'hono';
-import { CreateAuthors } from './endpoints/-create-authors';
-import { ListAuthorss } from './endpoints/-list-authorss';
-import { GetAuthors } from './endpoints/-get-authors';
-import { UpdateAuthors } from './endpoints/-update-authors';
-import { DeleteAuthors } from './endpoints/-delete-authors';
-import { CreatePosts } from './endpoints/-create-posts';
-import { ListPostss } from './endpoints/-list-postss';
-import { GetPosts } from './endpoints/-get-posts';
-import { UpdatePosts } from './endpoints/-update-posts';
-import { DeletePosts } from './endpoints/-delete-posts';
-import { CreateComments } from './endpoints/-create-comments';
-import { ListCommentss } from './endpoints/-list-commentss';
-import { GetComments } from './endpoints/-get-comments';
-import { UpdateComments } from './endpoints/-update-comments';
-import { DeleteComments } from './endpoints/-delete-comments';
+import { CreateUser } from './endpoints/-create-user';
+import { ListUsers } from './endpoints/-list-users';
+import { GetUser } from './endpoints/-get-user';
+import { UpdateUser } from './endpoints/-update-user';
+import { DeleteUser } from './endpoints/-delete-user';
+import { CreatePost } from './endpoints/-create-post';
+import { ListPosts } from './endpoints/-list-posts';
+import { GetPost } from './endpoints/-get-post';
+import { UpdatePost } from './endpoints/-update-post';
+import { DeletePost } from './endpoints/-delete-post';
+import { CreateComment } from './endpoints/-create-comment';
+import { ListComments } from './endpoints/-list-comments';
+import { GetComment } from './endpoints/-get-comment';
+import { UpdateComment } from './endpoints/-update-comment';
+import { DeleteComment } from './endpoints/-delete-comment';
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
@@ -25,21 +25,21 @@ const openapi = fromHono(app, {
 });
 
 // Register OpenAPI endpoints
-openapi.post('/authorss', CreateAuthors);
-    openapi.get('/authorss', ListAuthorss);
-    openapi.get('/authorss/:id', GetAuthors);
-    openapi.put('/authorss/:id', UpdateAuthors);
-    openapi.delete('/authorss/:id', DeleteAuthors);
-    openapi.post('/postss', CreatePosts);
-    openapi.get('/postss', ListPostss);
-    openapi.get('/postss/:id', GetPosts);
-    openapi.put('/postss/:id', UpdatePosts);
-    openapi.delete('/postss/:id', DeletePosts);
-    openapi.post('/commentss', CreateComments);
-    openapi.get('/commentss', ListCommentss);
-    openapi.get('/commentss/:id', GetComments);
-    openapi.put('/commentss/:id', UpdateComments);
-    openapi.delete('/commentss/:id', DeleteComments);
+openapi.post('/users', CreateUser);
+    openapi.get('/users', ListUsers);
+    openapi.get('/users/:id', GetUser);
+    openapi.put('/users/:id', UpdateUser);
+    openapi.delete('/users/:id', DeleteUser);
+    openapi.post('/posts', CreatePost);
+    openapi.get('/posts', ListPosts);
+    openapi.get('/posts/:id', GetPost);
+    openapi.put('/posts/:id', UpdatePost);
+    openapi.delete('/posts/:id', DeletePost);
+    openapi.post('/comments', CreateComment);
+    openapi.get('/comments', ListComments);
+    openapi.get('/comments/:id', GetComment);
+    openapi.put('/comments/:id', UpdateComment);
+    openapi.delete('/comments/:id', DeleteComment);
 
 // Export the Hono app
 export default app;

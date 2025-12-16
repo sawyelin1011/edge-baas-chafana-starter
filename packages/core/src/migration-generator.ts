@@ -63,7 +63,8 @@ export class MigrationGenerator {
 
   private static generateResourceMigration(resource: ResourceConfig): GeneratedMigration {
     const tableSQL = this.generateTableSQL(resource);
-    const sql = `-- Create ${resource.name}s table\n${tableSQL}`;
+    const pluralName = this.pluralize(resource.name);
+    const sql = `-- Create ${pluralName} table\n${tableSQL}`;
     const timestamp = this.generateTimestamp();
     
     return {
@@ -75,6 +76,7 @@ export class MigrationGenerator {
 
   private static generateTableSQL(resource: ResourceConfig): string {
     const fields: string[] = [];
+    const pluralName = this.pluralize(resource.name);
 
     // Add primary key
     fields.push('  id TEXT PRIMARY KEY');
@@ -97,11 +99,12 @@ export class MigrationGenerator {
     for (const field of resource.fields) {
       if (field.relation) {
         const [targetResource] = field.relation.split('.');
-        fields.push(`  FOREIGN KEY (${field.name}) REFERENCES ${targetResource}s(id)`);
+        const targetPlural = this.pluralize(targetResource);
+        fields.push(`  FOREIGN KEY (${field.name}) REFERENCES ${targetPlural}(id)`);
       }
     }
 
-    return `CREATE TABLE IF NOT EXISTS ${resource.name}s (\n${fields.join(',\n')}\n);`;
+    return `CREATE TABLE IF NOT EXISTS ${pluralName} (\n${fields.join(',\n')}\n);`;
   }
 
   private static generateFieldSQL(field: any): string {
@@ -165,11 +168,12 @@ export class MigrationGenerator {
       throw new Error(`No indexes defined for resource ${resource.name}`);
     }
 
+    const pluralName = this.pluralize(resource.name);
     const indexSQLs = resource.indexes.map(index => 
-      `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS idx_${resource.name}s_${index.fields.join('_')} ON ${resource.name}s (${index.fields.join(', ')});`
+      `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS idx_${pluralName}_${index.fields.join('_')} ON ${pluralName} (${index.fields.join(', ')});`
     ).join('\n');
 
-    const sql = `-- Create indexes for ${resource.name}s table\n${indexSQLs}`;
+    const sql = `-- Create indexes for ${pluralName} table\n${indexSQLs}`;
     const timestamp = this.generateTimestamp();
 
     return {
@@ -181,9 +185,10 @@ export class MigrationGenerator {
 
   // Generate rollback migration
   static generateRollback(config: EdgeBaasConfig): GeneratedMigration {
-    const dropTables = config.resources.map(resource => 
-      `DROP TABLE IF EXISTS ${resource.name}s;`
-    ).join('\n');
+    const dropTables = config.resources.map(resource => {
+      const pluralName = this.pluralize(resource.name);
+      return `DROP TABLE IF EXISTS ${pluralName};`;
+    }).join('\n');
 
     const sql = `-- Rollback all tables\n${dropTables}`;
     const timestamp = this.generateTimestamp();
@@ -201,6 +206,7 @@ export class MigrationGenerator {
       throw new Error('Seed data is required');
     }
 
+    const pluralName = this.pluralize(resource.name);
     const values = seedData.map(data => {
       const fields = Object.keys(data).map(key => {
         const value = data[key];
@@ -213,8 +219,8 @@ export class MigrationGenerator {
       return `(${fields})`;
     }).join(',\n    ');
 
-    const sql = `-- Seed data for ${resource.name}s
-INSERT INTO ${resource.name}s (${Object.keys(seedData[0]).join(', ')})
+    const sql = `-- Seed data for ${pluralName}
+INSERT INTO ${pluralName} (${Object.keys(seedData[0]).join(', ')})
 VALUES 
     ${values};`;
 
@@ -225,5 +231,15 @@ VALUES
       sql,
       checksum: this.calculateChecksum(sql)
     };
+  }
+
+  private static pluralize(str: string): string {
+    // Simple pluralization
+    if (str.endsWith('s')) return str;
+    if (str.endsWith('y')) return str.slice(0, -1) + 'ies';
+    if (str.endsWith('ch') || str.endsWith('sh') || str.endsWith('x') || str.endsWith('z')) {
+      return str + 'es';
+    }
+    return str + 's';
   }
 }

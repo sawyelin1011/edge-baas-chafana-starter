@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { readFileSync, existsSync } from 'fs';
-import { basename } from 'path';
+import { basename, extname } from 'path';
 import { ConfigParser } from '@edge-baas/core';
 import chalk from 'chalk';
 
@@ -9,42 +9,53 @@ export class ValidateCommand {
     program
       .command('validate')
       .description('Validate Edge-BaaS configuration file')
-      .argument('<file>', 'Configuration file (must be config.json)')
+      .argument('[file]', 'Configuration file (config.json, config.yml, or custom with --config)')
+      .option('-c, --config <path>', 'Path to configuration file')
       .option('-f, --format <format>', 'Output format', 'text')
       .action((file, options) => ValidateCommand.validateFiles(file, options));
   }
 
-  static async validateFiles(file: string, options: any) {
-    // Validate that the file is config.json
-    const fileName = basename(file);
-    if (fileName !== 'config.json') {
-      console.log(chalk.red('❌ Only config.json is supported'));
-      console.log(chalk.yellow(`   Found: ${fileName}`));
-      console.log(chalk.blue('   Please rename your configuration file to config.json'));
+  static async validateFiles(file: string | undefined, options: any) {
+    // Determine config file path
+    const configPath = options.config || file || this.findDefaultConfig();
+    
+    if (!configPath) {
+      console.log(chalk.red('❌ No configuration file found'));
+      console.log(chalk.yellow('   Looking for: config.json, config.yml in ./config/ or current directory'));
+      console.log(chalk.blue('   Usage: edge-baas validate [file] or edge-baas validate --config <path>'));
+      process.exit(1);
+    }
+
+    // Validate file extension
+    const ext = extname(configPath);
+    if (!['.json', '.yml', '.yaml'].includes(ext)) {
+      console.log(chalk.red('❌ Invalid configuration file format'));
+      console.log(chalk.yellow(`   Found: ${ext}`));
+      console.log(chalk.blue('   Supported formats: .json, .yml, .yaml'));
+      process.exit(1);
+    }
+
+    if (!existsSync(configPath)) {
+      console.log(chalk.red(`❌ File not found: ${configPath}`));
       process.exit(1);
     }
 
     let allValid = true;
     const results: Array<{ file: string; valid: boolean; errors: string[] }> = [];
 
-    if (!existsSync(file)) {
-      console.log(chalk.red(`❌ File not found: ${file}`));
-      process.exit(1);
-    }
-
     try {
-      const content = readFileSync(file, 'utf-8');
+      const content = readFileSync(configPath, 'utf-8');
       const { config, errors } = ConfigParser.parse(content);
       
-      results.push({ file, valid: errors.length === 0, errors });
+      results.push({ file: configPath, valid: errors.length === 0, errors });
 
       if (errors.length === 0) {
-        console.log(chalk.green(`✅ ${file}`));
+        console.log(chalk.green(`✅ ${configPath}`));
         console.log(`   Name: ${config.name}`);
         console.log(`   Resources: ${config.resources.length}`);
         console.log(`   Database: ${config.database?.name || 'Not specified'}`);
       } else {
-        console.log(chalk.red(`❌ ${file}`));
+        console.log(chalk.red(`❌ ${configPath}`));
         errors.forEach(error => {
           console.log(chalk.red(`   ${error}`));
         });
@@ -52,7 +63,7 @@ export class ValidateCommand {
       }
       console.log();
     } catch (error) {
-      console.log(chalk.red(`❌ ${file} - Failed to read`));
+      console.log(chalk.red(`❌ ${configPath} - Failed to read`));
       console.log(chalk.red(`   ${error instanceof Error ? error.message : 'Unknown error'}`));
       allValid = false;
     }
@@ -62,11 +73,30 @@ export class ValidateCommand {
     }
 
     if (allValid) {
-      console.log(chalk.green('✅ All files are valid!'));
+      console.log(chalk.green('✅ Configuration is valid!'));
       process.exit(0);
     } else {
       console.log(chalk.red('❌ Validation failed'));
       process.exit(1);
     }
+  }
+
+  private static findDefaultConfig(): string | null {
+    const possiblePaths = [
+      'config/config.json',
+      'config/config.yml',
+      'config/config.yaml',
+      'config.json',
+      'config.yml',
+      'config.yaml'
+    ];
+
+    for (const path of possiblePaths) {
+      if (existsSync(path)) {
+        return path;
+      }
+    }
+
+    return null;
   }
 }

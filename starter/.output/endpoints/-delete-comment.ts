@@ -1,13 +1,13 @@
 import { D1DeleteEndpoint } from 'chanfana';
 import { z } from 'zod';
-import { PostsSchema } from '../schemas/posts.js';
+import { CommentSchema } from '../schemas/comment.js';
 
-export class DeletePosts extends D1DeleteEndpoint {
+export class DeleteComment extends D1DeleteEndpoint {
   _meta = { 
     model: { 
-      schema: PostsSchema, 
+      schema: CommentSchema, 
       primaryKeys: ['id'], 
-      tableName: 'postss' 
+      tableName: 'comments' 
     } 
   };
   
