@@ -1,55 +1,75 @@
 import { EdgeBaasConfig, ResourceConfig, GeneratedMigration } from './types.js';
+import { createHash } from 'crypto';
 
 export class MigrationGenerator {
+  private static generatedTimestamps = new Set<string>();
+
   static generate(config: EdgeBaasConfig): GeneratedMigration[] {
     const migrations: GeneratedMigration[] = [];
-
-    // Generate main table creation migration
-    migrations.push(this.generateTableCreationMigration(config));
+    this.generatedTimestamps.clear();
 
     // Generate individual table migrations
     for (const resource of config.resources) {
-      migrations.push(this.generateResourceMigration(resource));
+      const migration = this.generateResourceMigration(resource);
+      migrations.push(migration);
     }
 
     // Generate index migrations
     for (const resource of config.resources) {
       if (resource.indexes && resource.indexes.length > 0) {
-        migrations.push(this.generateIndexMigration(resource));
+        const migration = this.generateIndexMigration(resource);
+        migrations.push(migration);
       }
     }
 
     return migrations;
   }
 
-  private static generateTableCreationMigration(config: EdgeBaasConfig): GeneratedMigration {
-    const allTables = config.resources.map(resource => this.generateTableSQL(resource)).join('\n\n');
+  private static generateTimestamp(): string {
+    let timestamp: string;
+    let attempts = 0;
     
-    const sql = `-- Create all tables
-${allTables}
+    do {
+      const now = new Date();
+      // Format: YYYYMMDDHHMM
+      timestamp = now.toISOString()
+        .replace(/[-:T.Z]/g, '')
+        .slice(0, 12);
+      
+      // If timestamp already used, wait 1ms and try again
+      if (this.generatedTimestamps.has(timestamp)) {
+        attempts++;
+        if (attempts > 100) {
+          // Fallback: add milliseconds to make it unique
+          const ms = now.getMilliseconds().toString().padStart(3, '0');
+          timestamp = timestamp + ms.slice(0, 2);
+          break;
+        }
+        // Small delay to ensure different timestamp
+        const waitUntil = Date.now() + 1;
+        while (Date.now() < waitUntil) { /* busy wait */ }
+        continue;
+      }
+      break;
+    } while (true);
 
--- Create indexes
-${config.resources
-  .filter(resource => resource.indexes)
-  .map(resource => 
-    resource.indexes!.map(index => 
-      `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX idx_${resource.name}s_${index.fields.join('_')} ON ${resource.name}s (${index.fields.join(', ')});`
-    ).join('\n')
-  ).join('\n')}
-`;
+    this.generatedTimestamps.add(timestamp);
+    return timestamp;
+  }
 
-    return {
-      name: '001_initial_tables',
-      sql
-    };
+  private static calculateChecksum(sql: string): string {
+    return createHash('md5').update(sql).digest('hex');
   }
 
   private static generateResourceMigration(resource: ResourceConfig): GeneratedMigration {
     const tableSQL = this.generateTableSQL(resource);
+    const sql = `-- Create ${resource.name}s table\n${tableSQL}`;
+    const timestamp = this.generateTimestamp();
     
     return {
-      name: `002_create_${resource.name}s_table`,
-      sql: `-- Create ${resource.name}s table\n${tableSQL}`
+      name: `${timestamp}_${resource.name}_create_table`,
+      sql,
+      checksum: this.calculateChecksum(sql)
     };
   }
 
@@ -146,12 +166,16 @@ ${config.resources
     }
 
     const indexSQLs = resource.indexes.map(index => 
-      `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX idx_${resource.name}s_${index.fields.join('_')} ON ${resource.name}s (${index.fields.join(', ')});`
+      `CREATE ${index.unique ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS idx_${resource.name}s_${index.fields.join('_')} ON ${resource.name}s (${index.fields.join(', ')});`
     ).join('\n');
 
+    const sql = `-- Create indexes for ${resource.name}s table\n${indexSQLs}`;
+    const timestamp = this.generateTimestamp();
+
     return {
-      name: `003_create_${resource.name}s_indexes`,
-      sql: `-- Create indexes for ${resource.name}s table\n${indexSQLs}`
+      name: `${timestamp}_${resource.name}_create_indexes`,
+      sql,
+      checksum: this.calculateChecksum(sql)
     };
   }
 
@@ -161,9 +185,13 @@ ${config.resources
       `DROP TABLE IF EXISTS ${resource.name}s;`
     ).join('\n');
 
+    const sql = `-- Rollback all tables\n${dropTables}`;
+    const timestamp = this.generateTimestamp();
+
     return {
-      name: '999_rollback',
-      sql: `-- Rollback all tables\n${dropTables}`
+      name: `${timestamp}_rollback`,
+      sql,
+      checksum: this.calculateChecksum(sql)
     };
   }
 
@@ -190,9 +218,12 @@ INSERT INTO ${resource.name}s (${Object.keys(seedData[0]).join(', ')})
 VALUES 
     ${values};`;
 
+    const timestamp = this.generateTimestamp();
+
     return {
-      name: `004_seed_${resource.name}s`,
-      sql
+      name: `${timestamp}_seed_${resource.name}s`,
+      sql,
+      checksum: this.calculateChecksum(sql)
     };
   }
 }

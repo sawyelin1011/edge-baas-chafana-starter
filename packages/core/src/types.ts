@@ -72,6 +72,7 @@ export interface GeneratedSchema {
 export interface GeneratedMigration {
   name: string;
   sql: string;
+  checksum?: string;
 }
 
 export interface GenerationResult {

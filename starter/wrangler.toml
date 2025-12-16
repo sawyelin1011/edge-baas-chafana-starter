@@ -1,0 +1,38 @@
+name = "edge-baas-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database Configuration
+# Follow these steps to set up your database:
+# 1. Create a D1 database: wrangler d1 create edge-baas-db
+# 2. Copy the database_id from the output and replace YOUR_DATABASE_ID_HERE below
+# 3. Run migrations: npm run db:migrate
+
+[[d1_databases]]
+binding = "DB"
+database_name = "edge-baas-db"
+database_id = "YOUR_DATABASE_ID_HERE"
+
+# Development Environment
+[env.development]
+name = "edge-baas-api-dev"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "edge-baas-db-dev"
+database_id = "YOUR_DEV_DATABASE_ID_HERE"
+
+# Production Environment
+[env.production]
+name = "edge-baas-api-prod"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "edge-baas-db-prod"
+database_id = "YOUR_PROD_DATABASE_ID_HERE"
+
+# Additional configuration options
+# account_id = "your-cloudflare-account-id"
+# workers_dev = true
+# route = "api.yourdomain.com/*"
+# compatibility_flags = []

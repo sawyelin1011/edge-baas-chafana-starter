@@ -9,12 +9,13 @@
     "start": "wrangler dev",
     "cf-typegen": "wrangler types",
     "build": "mkdir -p build && echo \"starter placeholder\" > build/placeholder.txt",
-    "validate": "edge-baas validate config/*.yaml",
-    "generate": "edge-baas generate config/*.yaml",
-    "db:migrate": "wrangler d1 execute your-db-name --file=./migrations/001_initial_tables.sql",
-    "db:seed": "wrangler d1 execute your-db-name --file=./migrations/004_seed_data.sql"
+    "validate": "edge-baas validate config/config.json",
+    "generate": "edge-baas generate config/config.json",
+    "db:migrate": "wrangler d1 execute your-db-name --file=./.output/migrations/*.sql",
+    "db:seed": "wrangler d1 execute your-db-name --file=./.output/migrations/*_seed_*.sql"
   },
   "dependencies": {
+    "@scalar/hono-api-reference": "^0.5.149",
     "chanfana": "^2.6.3",
     "hono": "^4.6.20",
     "zod": "^3.24.1"
