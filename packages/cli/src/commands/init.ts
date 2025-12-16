@@ -1,16 +1,18 @@
 import { Command } from 'commander';
 import inquirer from 'inquirer';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export class InitCommand {
   static register(program: Command) {
     program
       .command('init')
-      .description('Initialize a new Edge-BaaS project')
+      .description('Initialize a new Edge-BaaS project or scaffold a starter config in the current directory')
       .option('-n, --name <name>', 'Project name')
-      .option('-d, --dir <dir>', 'Project directory')
-      .action(this.initProject);
+      .option('-d, --dir <dir>', 'Project directory (create full project when provided)')
+      .option('-t, --template <template>', 'Starter template to use (blog|ecommerce|saas)', 'blog')
+      .action((options) => InitCommand.initProject(options));
   }
 
   static async initProject(options: any) {
@@ -33,7 +35,7 @@ export class InitCommand {
         name: 'directory',
         message: 'Project directory:',
         default: (answers: any) => answers.name || 'my-api',
-        when: !options.dir
+        when: false
       },
       {
         type: 'confirm',
@@ -45,35 +47,92 @@ export class InitCommand {
 
     const projectName = options.name || answers.name;
     const projectDir = options.dir || answers.directory;
+    const template = options.template || 'blog';
 
-    console.log(`Creating Edge-BaaS project "${projectName}" in ${projectDir}...`);
+    // If a directory was provided, preserve the previous behavior (create full project)
+    if (options.dir) {
+      console.log(`Creating Edge-BaaS project "${projectName}" in ${projectDir}...`);
 
-    // Create project structure
-    this.createProjectStructure(projectDir);
+      // Create project structure
+      this.createProjectStructure(projectDir);
 
-    // Create package.json
-    this.createPackageJson(projectName, projectDir);
+      // Create package.json
+      this.createPackageJson(projectName, projectDir);
 
-    // Create tsconfig.json
-    this.createTsConfig(projectDir);
+      // Create tsconfig.json
+      this.createTsConfig(projectDir);
 
-    // Create wrangler.toml
-    this.createWranglerConfig(projectName, projectDir);
+      // Create wrangler.toml
+      this.createWranglerConfig(projectName, projectDir);
 
-    // Create src directory structure
-    this.createSourceStructure(projectDir);
+      // Create src directory structure
+      this.createSourceStructure(projectDir);
 
-    // Create config file
-    this.createConfigFile(projectName, projectDir, answers.includeExample);
+      // Create config file
+      this.createConfigFile(projectName, projectDir, answers.includeExample);
 
-    // Create README
-    this.createReadme(projectName, answers.description, projectDir);
+      // Create README
+      this.createReadme(projectName, answers.description, projectDir);
 
-    console.log(`✅ Project created successfully!`);
-    console.log(`\nNext steps:`);
-    console.log(`  cd ${projectDir}`);
-    console.log(`  npm install`);
-    console.log(`  npm run dev`);
+      console.log(`✅ Project created successfully!`);
+      console.log(`\nNext steps:`);
+      console.log(`  cd ${projectDir}`);
+      console.log(`  npm install`);
+      console.log(`  npm run dev`);
+      return;
+    }
+
+    // Default behavior: write a starter config into the current working directory under ./config
+    console.log(`Scaffolding starter config '${template}' into ./config ...`);
+
+    const cwd = process.cwd();
+    const configDir = join(cwd, 'config');
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, { recursive: true });
+    }
+
+    // Resolve template file from the monorepo's starter/config folder adjacent to this package
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const templateFile = `${template}.config.yaml`;
+    // Try multiple up-level paths to locate the monorepo's starter/config when running from dist
+    const candidatePaths = [
+      join(__dirname, '../../starter/config', templateFile),
+      join(__dirname, '../../../starter/config', templateFile),
+      join(__dirname, '../../../../starter/config', templateFile),
+      join(__dirname, '../../../../../starter/config', templateFile),
+      join(__dirname, '../../../../../..//starter/config', templateFile)
+    ];
+
+    let sourcePath: string | null = null;
+    for (const p of candidatePaths) {
+      if (existsSync(p)) {
+        sourcePath = p;
+        break;
+      }
+    }
+
+    if (!sourcePath) {
+      // As a fallback, create a minimal config using the answers
+      const minimalConfig = `name: ${projectName}\nversion: 1.0.0\ndescription: ${answers.description || ''}\n\ndatabase:\n  name: ${projectName}-db\n  binding: DB\n\nresources:\n  # Add resources here\n`;
+      writeFileSync(join(configDir, 'api.config.yaml'), minimalConfig);
+      console.log('✅ Created minimal config at ./config/api.config.yaml');
+      console.log('\nNext steps:');
+      console.log('  npm install');
+      console.log('  edge-baas validate config/*.yaml');
+      console.log('  edge-baas generate config/*.yaml');
+      console.log('  # Run migrations with your platform-specific commands');
+      return;
+    }
+
+    const destPath = join(configDir, 'api.config.yaml');
+    const content = readFileSync(sourcePath, 'utf-8');
+    writeFileSync(destPath, content);
+
+    console.log(`✅ Starter config written to ./config/api.config.yaml (from ${template})`);
+    console.log('\nNext steps:');
+    console.log('  edge-baas validate config/*.yaml');
+    console.log('  edge-baas generate config/*.yaml');
+    console.log('  # Then run your migration and deploy commands as needed');
   }
 
   private static createProjectStructure(dir: string) {

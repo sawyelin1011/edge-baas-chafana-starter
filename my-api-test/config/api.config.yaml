@@ -1,0 +1,50 @@
+name: my-api
+version: 1.0.0
+description: A new Edge-BaaS API
+
+database:
+  name: my-api-db
+  binding: DB
+
+resources:
+  - name: posts
+    description: Blog posts
+    fields:
+      - name: title
+        type: string
+        required: true
+        min: 3
+        searchable: true
+      - name: content
+        type: text
+        required: true
+      - name: authorId
+        type: uuid
+        required: true
+        relation: users.id
+      - name: published
+        type: boolean
+        default: false
+    indexes:
+      - fields: [authorId]
+      - fields: [title]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: users
+    description: System users
+    fields:
+      - name: email
+        type: email
+        required: true
+        unique: true
+      - name: name
+        type: string
+        required: true
+        min: 2
+      - name: avatar
+        type: url
+    timestamps:
+      createdAt: true
+      updatedAt: true

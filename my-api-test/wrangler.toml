@@ -1,0 +1,12 @@
+name = "my-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "my-api-db"
+database_id = "your-database-id-here"
+
+# Add your Cloudflare account details
+# account_id = "your-account-id"
+# route = "api.yourdomain.com/*"

@@ -10,7 +10,7 @@ export class ValidateCommand {
       .description('Validate Edge-BaaS configuration files')
       .argument('[files...]', 'Configuration files to validate')
       .option('-f, --format <format>', 'Output format', 'text')
-      .action(this.validateFiles);
+      .action((files, options) => ValidateCommand.validateFiles(files || [], options));
   }
 
   static async validateFiles(files: string[], options: any) {

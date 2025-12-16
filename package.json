@@ -1,21 +1,25 @@
 {
-  "name": "cloudflare-workers-openapi",
-  "version": "0.0.1",
+  "name": "edge-baas-monorepo",
   "private": true,
+  "packageManager": "pnpm@10.26.0",
+  
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "cf-typegen": "wrangler types"
-  },
-  "dependencies": {
-    "chanfana": "^2.6.3",
-    "hono": "^4.6.20",
-    "zod": "^3.24.1"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "link": "npm run link:core && npm run link:cli",
+    "link:core": "cd packages/core && npm link",
+    "link:cli": "cd packages/cli && npm link && npm link @edge-baas/core",
+    "publish": "npm run build && npm publish --workspaces",
+    "postinstall": "pnpm -w -r run build"
   },
   "devDependencies": {
-    "@types/node": "22.13.0",
-    "@types/service-worker-mock": "^2.0.4",
-    "wrangler": "^4.55.0"
+    "turbo": "^2.4.4",
+    "typescript": "^5.6.0"
   }
 }

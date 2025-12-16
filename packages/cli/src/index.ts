@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from 'commander';
 import { InitCommand } from './commands/init.js';
 import { ValidateCommand } from './commands/validate.js';

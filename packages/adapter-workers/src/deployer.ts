@@ -192,7 +192,7 @@ export class WorkersDeployer {
     const databaseName = config.database?.name || `${config.name}-db`;
     const binding = config.database?.binding || 'DB';
 
-    let config = `name = "${config.name}"
+    let toml = `name = "${config.name}"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
@@ -212,7 +212,7 @@ database_id = "your-database-id-here"
 # [env.staging.vars]
 # ENVIRONMENT = "staging"`;
 
-    return config;
+    return toml;
   }
 
   // Validate deployment prerequisites
