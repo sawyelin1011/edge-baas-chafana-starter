@@ -1,0 +1,35 @@
+{
+  "name": "@edge-baas/starter",
+  "version": "0.1.0",
+  "description": "Starter template for Edge-BaaS projects",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev",
+    "cf-typegen": "wrangler types",
+    "build": "mkdir -p build && echo \"starter placeholder\" > build/placeholder.txt",
+    "validate": "edge-baas validate config/*.yaml",
+    "generate": "edge-baas generate config/*.yaml",
+    "db:migrate": "wrangler d1 execute your-db-name --file=./migrations/001_initial_tables.sql",
+    "db:seed": "wrangler d1 execute your-db-name --file=./migrations/004_seed_data.sql"
+  },
+  "dependencies": {
+    "chanfana": "^2.6.3",
+    "hono": "^4.6.20",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/service-worker-mock": "^2.0.4",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.55.0"
+  },
+  "turbo": {
+    "pipeline": {
+      "build": {
+        "outputs": []
+      }
+    }
+  }
+}
