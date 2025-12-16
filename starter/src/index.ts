@@ -1,46 +1,60 @@
-import { fromHono } from "chanfana";
-import { Hono } from "hono";
-import { apiReference } from "@scalar/hono-api-reference";
+import { fromHono } from 'chanfana';
+import { Hono } from 'hono';
+import { apiReference } from '@scalar/hono-api-reference';
 
-type Env = { DB: D1Database };
+type Env = { 
+  Bindings: {
+    DB: D1Database;
+  }
+};
 
-// Start a Hono app
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<Env>();
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
-  docs_url: "/openapi.json",
+  docs_url: '/openapi.json',
 });
 
-// Scalar API reference at /docs
-app.get(
-  "/docs",
-  apiReference({
-    spec: {
-      url: "/openapi.json",
-    },
-    theme: "purple",
-    pageTitle: "Edge-BaaS API Documentation",
-  })
-);
-
 // Health check endpoint
-app.get("/health", (c) => {
-  return c.json({
-    status: "ok",
+app.get('/health', (c) => {
+  return c.json({ 
+    status: 'ok', 
     timestamp: new Date().toISOString(),
-    service: "edge-baas-api",
+    service: 'edge-baas-api'
   });
 });
 
-// Register generated endpoints here from .output/endpoints
-// Example:
-// import { CreatePost, ListPosts, GetPost, UpdatePost, DeletePost } from './.output/endpoints/posts';
-// openapi.post('/posts', CreatePost);
-// openapi.get('/posts', ListPosts);
-// openapi.get('/posts/:id', GetPost);
-// openapi.put('/posts/:id', UpdatePost);
-// openapi.delete('/posts/:id', DeletePost);
+// API Documentation with Scalar
+app.get('/docs', apiReference({
+  spec: {
+    url: '/openapi.json',
+  },
+  theme: 'purple',
+  defaultHttpClient: {
+    targetKey: 'javascript',
+    clientKey: 'fetch',
+  },
+}));
 
-// Export the Hono app
+// Import and register generated endpoints
+// After running `npm run generate`, uncomment and import your endpoints:
+//
+// import { CreateUser } from '../.output/endpoints/-create-user';
+// import { ListUsers } from '../.output/endpoints/-list-users';
+// import { GetUser } from '../.output/endpoints/-get-user';
+// import { UpdateUser } from '../.output/endpoints/-update-user';
+// import { DeleteUser } from '../.output/endpoints/-delete-user';
+//
+// openapi.post('/users', CreateUser);
+// openapi.get('/users', ListUsers);
+// openapi.get('/users/:id', GetUser);
+// openapi.put('/users/:id', UpdateUser);
+// openapi.delete('/users/:id', DeleteUser);
+//
+// Repeat for all resources...
+
+// Or dynamically use the generated router:
+// import generatedRouter from '../.output/router';
+// app.route('/', generatedRouter);
+
 export default app;
