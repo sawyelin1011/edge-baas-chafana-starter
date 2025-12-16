@@ -1,0 +1,173 @@
+name: saas-api
+version: 1.0.0
+description: A multi-tenant SaaS API with organizations, users, and subscriptions
+
+database:
+  name: saas-db
+  binding: DB
+
+resources:
+  - name: organizations
+    description: Multi-tenant organizations
+    fields:
+      - name: name
+        type: string
+        required: true
+        min: 2
+        searchable: true
+      - name: slug
+        type: string
+        required: true
+        unique: true
+      - name: domain
+        type: url
+      - name: settings
+        type: json
+        default: '{}'
+      - name: plan
+        type: enum
+        enum: [free, starter, pro, enterprise]
+        default: free
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [slug]
+        unique: true
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: users
+    description: Organization users
+    fields:
+      - name: email
+        type: email
+        required: true
+        unique: true
+        searchable: true
+      - name: name
+        type: string
+        required: true
+        min: 2
+      - name: role
+        type: enum
+        enum: [owner, admin, member, viewer]
+        default: member
+      - name: organizationId
+        type: uuid
+        required: true
+        relation: organizations.id
+      - name: avatar
+        type: url
+      - name: lastLoginAt
+        type: datetime
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [email]
+        unique: true
+      - fields: [organizationId]
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: subscriptions
+    description: Organization subscriptions
+    fields:
+      - name: organizationId
+        type: uuid
+        required: true
+        relation: organizations.id
+      - name: plan
+        type: enum
+        enum: [free, starter, pro, enterprise]
+        required: true
+      - name: status
+        type: enum
+        enum: [active, cancelled, past_due, unpaid]
+        default: active
+      - name: currentPeriodStart
+        type: datetime
+        required: true
+      - name: currentPeriodEnd
+        type: datetime
+        required: true
+      - name: stripeCustomerId
+        type: string
+      - name: stripeSubscriptionId
+        type: string
+    indexes:
+      - fields: [organizationId]
+      - fields: [status]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: api_keys
+    description: Organization API keys
+    fields:
+      - name: organizationId
+        type: uuid
+        required: true
+        relation: organizations.id
+      - name: name
+        type: string
+        required: true
+        min: 2
+      - name: key
+        type: string
+        required: true
+        unique: true
+      - name: permissions
+        type: json
+        default: '[]'
+      - name: lastUsedAt
+        type: datetime
+      - name: expiresAt
+        type: datetime
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [organizationId]
+      - fields: [key]
+        unique: true
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: audit_logs
+    description: Audit log entries
+    fields:
+      - name: organizationId
+        type: uuid
+        required: true
+        relation: organizations.id
+      - name: userId
+        type: uuid
+        relation: users.id
+      - name: action
+        type: string
+        required: true
+      - name: resource
+        type: string
+        required: true
+      - name: resourceId
+        type: string
+      - name: details
+        type: json
+        default: '{}'
+      - name: ip
+        type: string
+      - name: userAgent
+        type: text
+    indexes:
+      - fields: [organizationId]
+      - fields: [action]
+    timestamps:
+      createdAt: true
