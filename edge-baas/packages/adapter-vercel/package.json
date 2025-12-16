@@ -1,0 +1,20 @@
+{
+  "name": "@edge-baas/adapter-vercel",
+  "version": "0.1.0",
+  "description": "Vercel Edge adapter for Edge-BaaS (placeholder)",
+  "main": "dist/deployer.js",
+  "types": "dist/deployer.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@edge-baas/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

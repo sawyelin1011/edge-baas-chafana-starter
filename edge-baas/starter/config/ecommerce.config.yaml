@@ -1,0 +1,203 @@
+name: ecommerce-api
+version: 1.0.0
+description: An e-commerce API with products, orders, and customers
+
+database:
+  name: ecommerce-db
+  binding: DB
+
+resources:
+  - name: customers
+    description: E-commerce customers
+    fields:
+      - name: email
+        type: email
+        required: true
+        unique: true
+        searchable: true
+      - name: firstName
+        type: string
+        required: true
+        min: 2
+      - name: lastName
+        type: string
+        required: true
+        min: 2
+      - name: phone
+        type: string
+      - name: dateOfBirth
+        type: date
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [email]
+        unique: true
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: categories
+    description: Product categories
+    fields:
+      - name: name
+        type: string
+        required: true
+        min: 2
+        searchable: true
+      - name: slug
+        type: string
+        required: true
+        unique: true
+      - name: description
+        type: text
+      - name: parentId
+        type: uuid
+        relation: categories.id
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [slug]
+        unique: true
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: products
+    description: E-commerce products
+    fields:
+      - name: name
+        type: string
+        required: true
+        min: 2
+        searchable: true
+      - name: slug
+        type: string
+        required: true
+        unique: true
+      - name: description
+        type: text
+        required: true
+      - name: price
+        type: number
+        required: true
+        min: 0
+      - name: compareAtPrice
+        type: number
+        min: 0
+      - name: sku
+        type: string
+        required: true
+        unique: true
+      - name: categoryId
+        type: uuid
+        required: true
+        relation: categories.id
+      - name: images
+        type: json
+        default: '[]'
+      - name: attributes
+        type: json
+        default: '{}'
+      - name: inventory
+        type: integer
+        default: 0
+        min: 0
+      - name: weight
+        type: number
+        min: 0
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [slug]
+        unique: true
+      - fields: [sku]
+        unique: true
+      - fields: [categoryId]
+      - fields: [active]
+      - fields: [price]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: orders
+    description: Customer orders
+    fields:
+      - name: customerId
+        type: uuid
+        required: true
+        relation: customers.id
+      - name: orderNumber
+        type: string
+        required: true
+        unique: true
+      - name: status
+        type: enum
+        enum: [pending, processing, shipped, delivered, cancelled, refunded]
+        default: pending
+      - name: subtotal
+        type: number
+        required: true
+        min: 0
+      - name: tax
+        type: number
+        default: 0
+        min: 0
+      - name: shipping
+        type: number
+        default: 0
+        min: 0
+      - name: total
+        type: number
+        required: true
+        min: 0
+      - name: currency
+        type: string
+        default: USD
+      - name: shippingAddress
+        type: json
+        required: true
+      - name: billingAddress
+        type: json
+        required: true
+      - name: notes
+        type: text
+    indexes:
+      - fields: [customerId]
+      - fields: [orderNumber]
+        unique: true
+      - fields: [status]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: order_items
+    description: Items within orders
+    fields:
+      - name: orderId
+        type: uuid
+        required: true
+        relation: orders.id
+      - name: productId
+        type: uuid
+        required: true
+        relation: products.id
+      - name: quantity
+        type: integer
+        required: true
+        min: 1
+      - name: price
+        type: number
+        required: true
+        min: 0
+      - name: total
+        type: number
+        required: true
+        min: 0
+    timestamps:
+      createdAt: true
+      updatedAt: true
