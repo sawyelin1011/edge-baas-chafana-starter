@@ -152,10 +152,17 @@ export class MigrationGenerator {
     }
 
     if (field.default !== undefined) {
-      if (typeof field.default === 'string') {
-        constraints.push(`DEFAULT '${field.default}'`);
+      let defaultValue = field.default;
+      
+      // Convert boolean to 0 or 1 for SQLite
+      if (field.type === 'boolean') {
+        defaultValue = defaultValue ? 1 : 0;
+      }
+      
+      if (typeof defaultValue === 'string') {
+        constraints.push(`DEFAULT '${defaultValue}'`);
       } else {
-        constraints.push(`DEFAULT ${field.default}`);
+        constraints.push(`DEFAULT ${defaultValue}`);
       }
     }
 
