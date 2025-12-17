@@ -68,3 +68,4 @@ src/migrations/*.sql
 # Edge-BaaS specific
 .mono/
 .turbo/
+.output/
