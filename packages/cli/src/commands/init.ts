@@ -114,24 +114,24 @@ export class InitCommand {
     if (!sourcePath) {
       // As a fallback, create a minimal config using the answers
       const minimalConfig = `name: ${projectName}\nversion: 1.0.0\ndescription: ${answers.description || ''}\n\ndatabase:\n  name: ${projectName}-db\n  binding: DB\n\nresources:\n  # Add resources here\n`;
-      writeFileSync(join(configDir, 'api.config.yaml'), minimalConfig);
-      console.log('✅ Created minimal config at ./config/api.config.yaml');
+      writeFileSync(join(configDir, 'config.json'), minimalConfig);
+      console.log('✅ Created minimal config at ./config/config.json');
       console.log('\nNext steps:');
       console.log('  npm install');
-      console.log('  edge-baas validate config/*.yaml');
-      console.log('  edge-baas generate config/*.yaml');
+      console.log('  edge-baas validate config/config.json');
+      console.log('  edge-baas generate config/config.json');
       console.log('  # Run migrations with your platform-specific commands');
       return;
     }
 
-    const destPath = join(configDir, 'api.config.yaml');
+    const destPath = join(configDir, 'config.json');
     const content = readFileSync(sourcePath, 'utf-8');
     writeFileSync(destPath, content);
 
-    console.log(`✅ Starter config written to ./config/api.config.yaml (from ${template})`);
+    console.log(`✅ Starter config written to ./config/config.json (from ${template})`);
     console.log('\nNext steps:');
-    console.log('  edge-baas validate config/*.yaml');
-    console.log('  edge-baas generate config/*.yaml');
+    console.log('  edge-baas validate config/config.json');
+    console.log('  edge-baas generate config/config.json');
     console.log('  # Then run your migration and deploy commands as needed');
   }
 
@@ -165,10 +165,10 @@ export class InitCommand {
         start: 'wrangler dev',
         'cf-typegen': 'wrangler types',
         build: 'tsc',
-        'db:migrate': 'wrangler d1 execute your-db-name --file=./migrations/001_initial_tables.sql',
-        'db:seed': 'wrangler d1 execute your-db-name --file=./migrations/004_seed_data.sql',
-        validate: 'edge-baas validate config/*.yaml',
-        generate: 'edge-baas generate config/*.yaml'
+        'db:migrate': 'wrangler d1 execute your-db-name --file=./.output/migrations/*.sql',
+        'db:seed': 'wrangler d1 execute your-db-name --file=./.output/migrations/*_seed_*.sql',
+        validate: 'edge-baas validate config/config.json',
+        generate: 'edge-baas generate config/config.json'
       },
       dependencies: {
         'chanfana': '^2.6.3',
@@ -311,7 +311,7 @@ resources:`;
       updatedAt: true`;
     }
 
-    writeFileSync(join(dir, 'config', 'api.config.yaml'), config);
+    writeFileSync(join(dir, 'config', 'config.json'), config);
   }
 
   private static createReadme(name: string, description: string, dir: string) {

@@ -38,14 +38,15 @@ export class RouterBuilder {
 
     const endpointRegistrations = config.resources.flatMap(resource => {
       const resourceName = resource.name;
+      const pluralName = this.pluralize(resourceName);
       const className = this.capitalize(resourceName);
       
       return [
-        `openapi.post('/${resourceName}s', Create${className});`,
-        `openapi.get('/${resourceName}s', List${className}s);`,
-        `openapi.get('/${resourceName}s/:id', Get${className});`,
-        `openapi.put('/${resourceName}s/:id', Update${className});`,
-        `openapi.delete('/${resourceName}s/:id', Delete${className});`
+        `openapi.post('/${pluralName}', Create${className});`,
+        `openapi.get('/${pluralName}', List${className}s);`,
+        `openapi.get('/${pluralName}/:id', Get${className});`,
+        `openapi.put('/${pluralName}/:id', Update${className});`,
+        `openapi.delete('/${pluralName}/:id', Delete${className});`
       ];
     }).join('\n    ');
 
@@ -93,6 +94,16 @@ ${config.resources.map(r => `  ${r.name}: ${this.capitalize(r.name)};`).join('\n
     return str
       .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
       .toLowerCase();
+  }
+
+  private static pluralize(str: string): string {
+    // Simple pluralization
+    if (str.endsWith('s')) return str;
+    if (str.endsWith('y')) return str.slice(0, -1) + 'ies';
+    if (str.endsWith('ch') || str.endsWith('sh') || str.endsWith('x') || str.endsWith('z')) {
+      return str + 'es';
+    }
+    return str + 's';
   }
 
   // Generate configuration file (wrangler.toml)

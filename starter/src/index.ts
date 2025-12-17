@@ -1,19 +1,60 @@
-import { fromHono } from "chanfana";
-import { Hono } from "hono";
+import { fromHono } from 'chanfana';
+import { Hono } from 'hono';
+import { apiReference } from '@scalar/hono-api-reference';
 
-// Start a Hono app
-const app = new Hono<{ Bindings: Env }>();
+type Env = { 
+  Bindings: {
+    DB: D1Database;
+  }
+};
+
+const app = new Hono<Env>();
 
 // Setup OpenAPI registry
 const openapi = fromHono(app, {
-  docs_url: "/",
+  docs_url: '/openapi.json',
 });
 
-// Register OpenAPI endpoints
-// TODO: Add generated endpoints here
+// Health check endpoint
+app.get('/health', (c) => {
+  return c.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    service: 'edge-baas-api'
+  });
+});
 
-// You may also register routes for non OpenAPI directly on Hono
-// app.get('/test', (c) => c.text('Hono!'))
+// API Documentation with Scalar
+app.get('/docs', apiReference({
+  spec: {
+    url: '/openapi.json',
+  },
+  theme: 'purple',
+  defaultHttpClient: {
+    targetKey: 'javascript',
+    clientKey: 'fetch',
+  },
+}));
 
-// Export the Hono app
+// Import and register generated endpoints
+// After running `npm run generate`, uncomment and import your endpoints:
+//
+// import { CreateUser } from '../.output/endpoints/-create-user';
+// import { ListUsers } from '../.output/endpoints/-list-users';
+// import { GetUser } from '../.output/endpoints/-get-user';
+// import { UpdateUser } from '../.output/endpoints/-update-user';
+// import { DeleteUser } from '../.output/endpoints/-delete-user';
+//
+// openapi.post('/users', CreateUser);
+// openapi.get('/users', ListUsers);
+// openapi.get('/users/:id', GetUser);
+// openapi.put('/users/:id', UpdateUser);
+// openapi.delete('/users/:id', DeleteUser);
+//
+// Repeat for all resources...
+
+// Or dynamically use the generated router:
+// import generatedRouter from '../.output/router';
+// app.route('/', generatedRouter);
+
 export default app;

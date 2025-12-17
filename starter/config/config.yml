@@ -1,0 +1,115 @@
+name: edge-baas-api
+version: 1.0.0
+description: Edge-BaaS generated API
+
+database:
+  name: edge-baas-db
+  binding: DB
+
+resources:
+  - name: user
+    description: User accounts
+    fields:
+      - name: email
+        type: email
+        required: true
+        unique: true
+      - name: username
+        type: string
+        required: true
+        unique: true
+        min: 3
+        max: 50
+      - name: fullName
+        type: string
+        required: true
+        min: 2
+      - name: avatar
+        type: url
+      - name: active
+        type: boolean
+        default: true
+    indexes:
+      - fields: [email]
+        unique: true
+      - fields: [username]
+        unique: true
+      - fields: [active]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: post
+    description: Blog posts
+    fields:
+      - name: title
+        type: string
+        required: true
+        min: 3
+        max: 200
+        searchable: true
+      - name: slug
+        type: string
+        required: true
+        unique: true
+      - name: content
+        type: text
+        required: true
+      - name: excerpt
+        type: text
+        max: 500
+      - name: userId
+        type: uuid
+        required: true
+        relation: user.id
+      - name: published
+        type: boolean
+        default: false
+      - name: publishedAt
+        type: datetime
+      - name: tags
+        type: json
+        default: '[]'
+      - name: viewCount
+        type: integer
+        default: 0
+      - name: status
+        type: enum
+        enum: [draft, published, archived]
+        default: draft
+    indexes:
+      - fields: [userId]
+      - fields: [published]
+      - fields: [slug]
+        unique: true
+      - fields: [status]
+    timestamps:
+      createdAt: true
+      updatedAt: true
+
+  - name: comment
+    description: Comments on posts
+    fields:
+      - name: postId
+        type: uuid
+        required: true
+        relation: post.id
+      - name: userId
+        type: uuid
+        required: true
+        relation: user.id
+      - name: content
+        type: text
+        required: true
+        min: 1
+        max: 2000
+      - name: approved
+        type: boolean
+        default: false
+    indexes:
+      - fields: [postId]
+      - fields: [userId]
+      - fields: [approved]
+    timestamps:
+      createdAt: true
+      updatedAt: true

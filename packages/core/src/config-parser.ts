@@ -50,15 +50,21 @@ const edgeBaasConfigSchema = z.object({
 });
 
 export class ConfigParser {
-  static parse(yamlContent: string): { config: EdgeBaasConfig; errors: string[] } {
+  static parse(content: string): { config: EdgeBaasConfig; errors: string[] } {
     try {
-      // Parse YAML
-      const parsed = yaml.load(yamlContent);
+      // Try to parse as JSON first, fall back to YAML
+      let parsed: any;
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        // If JSON parsing fails, try YAML
+        parsed = yaml.load(content);
+      }
       
       if (!parsed || typeof parsed !== 'object') {
         return {
           config: {} as EdgeBaasConfig,
-          errors: ['Invalid YAML: Content must be an object']
+          errors: ['Invalid configuration: Content must be an object']
         };
       }
 
@@ -85,7 +91,7 @@ export class ConfigParser {
     } catch (error) {
       return {
         config: {} as EdgeBaasConfig,
-        errors: [`YAML parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`]
+        errors: [`Configuration parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`]
       };
     }
   }
@@ -132,8 +138,8 @@ export class ConfigParser {
             const targetRes = config.resources.find(r => r.name === targetResource);
             if (!targetRes) {
               errors.push(`Target resource '${targetResource}' not found for relation '${field.relation}'`);
-            } else {
-              // Check if target field exists
+            } else if (targetField !== 'id') {
+              // Check if target field exists (skip 'id' as it's auto-generated)
               const targetFieldExists = targetRes.fields.find(f => f.name === targetField);
               if (!targetFieldExists) {
                 errors.push(`Target field '${targetField}' not found in resource '${targetResource}' for relation '${field.relation}'`);
