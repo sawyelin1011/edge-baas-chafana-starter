@@ -9,11 +9,11 @@
     "start": "wrangler dev src/index.ts --local",
     "cf-typegen": "wrangler types",
     "build": "tsc --noEmit && echo 'Build successful'",
-    "validate": "edge-baas validate",
-    "generate": "edge-baas generate",
+    "validate": "node node_modules/@edge-baas/cli/dist/index.js validate",
+    "generate": "node node_modules/@edge-baas/cli/dist/index.js generate",
     "db:create": "wrangler d1 create edge-baas-db",
-    "db:migrate": "wrangler d1 execute edge-baas-db --local --file=.output/migrations/*.sql",
-    "db:migrate:prod": "wrangler d1 execute edge-baas-db --file=.output/migrations/*.sql"
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:migrate:prod": "node scripts/db-migrate.js --prod"
   },
   "dependencies": {
     "@scalar/hono-api-reference": "^0.5.149",
@@ -22,6 +22,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240815.0",
     "@edge-baas/cli": "workspace:*",
     "@types/node": "^22.13.0",
     "@types/service-worker-mock": "^2.0.4",
