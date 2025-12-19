@@ -25,7 +25,7 @@ export class SchemaGenerator {
     }
 
     // Generate the complete schema
-    const schemaCode = `export const ${this.capitalize(resource.name)}Schema = z.object({\n${zodFields.join(',\n')}\n});`;
+    const schemaCode = `import { z } from 'zod';\n\nexport const ${this.capitalize(resource.name)}Schema = z.object({\n${zodFields.join(',\n')}\n});`;
 
     // Generate TypeScript type export
     const typeCode = `export type ${this.capitalize(resource.name)} = z.infer<typeof ${this.capitalize(resource.name)}Schema>;`;
@@ -45,6 +45,33 @@ export class SchemaGenerator {
     const createTypeCode = `export type Create${this.capitalize(resource.name)} = z.infer<typeof Create${this.capitalize(resource.name)}Schema>;`;
 
     typeExports.push(createSchemaCode, createTypeCode);
+
+    // Generate update request schema
+    const updateFields = resource.fields
+      .filter(field => !field.name.match(/^(id|createdAt|updatedAt)$/))
+      .map(field => {
+        const zodField = this.generateFieldSchema(field);
+        return `  ${field.name}: ${zodField}.optional()`;
+      });
+
+    const updateSchemaCode = `export const Update${this.capitalize(resource.name)}RequestSchema = z.object({\n${updateFields.join(',\n')}\n});`;
+    const updateTypeCode = `export type Update${this.capitalize(resource.name)}Request = z.infer<typeof Update${this.capitalize(resource.name)}RequestSchema>;`;
+
+    typeExports.push(updateSchemaCode, updateTypeCode);
+
+    // Generate query schema
+    const querySchemaCode = `export const ${this.capitalize(resource.name)}QuerySchema = z.object({
+  limit: z.number().min(1).max(100).default(10).optional(),
+  offset: z.number().min(0).default(0).optional(),
+  orderBy: z.string().optional(),
+  orderDirection: z.enum(['asc', 'desc']).default('asc').optional(),
+  search: z.string().optional(),
+  ${resource.fields.filter(f => f.searchable || f.type === 'boolean' || f.type === 'enum').map(f => 
+    `${f.name}: z.string().optional()`
+  ).join(',\n  ')}
+}).partial();`;
+
+    typeExports.push(querySchemaCode);
 
     return {
       name: resource.name,
@@ -129,48 +156,5 @@ export class SchemaGenerator {
 
   private static capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  // Generate validation schema for API requests
-  static generateRequestSchemas(resource: ResourceConfig): {
-    create: string;
-    update: string;
-    query: string;
-  } {
-    const createFields = resource.fields
-      .filter(field => !field.name.match(/^(id|createdAt|updatedAt)$/))
-      .map(field => {
-        const zodField = this.generateFieldSchema(field);
-        return `  ${field.name}: ${zodField}${field.required === false ? '.optional()' : ''}`;
-      });
-
-    const createSchema = `export const Create${this.capitalize(resource.name)}RequestSchema = z.object({\n${createFields.join(',\n')}\n});`;
-
-    const updateFields = resource.fields
-      .filter(field => !field.name.match(/^(id|createdAt|updatedAt)$/))
-      .map(field => {
-        const zodField = this.generateFieldSchema(field);
-        return `  ${field.name}: ${zodField}.optional()`;
-      });
-
-    const updateSchema = `export const Update${this.capitalize(resource.name)}RequestSchema = z.object({\n${updateFields.join(',\n')}\n});`;
-
-    // Generate query schema with common parameters
-    const querySchema = `export const ${this.capitalize(resource.name)}QuerySchema = z.object({
-  limit: z.number().min(1).max(100).default(10).optional(),
-  offset: z.number().min(0).default(0).optional(),
-  orderBy: z.string().optional(),
-  orderDirection: z.enum(['asc', 'desc']).default('asc').optional(),
-  search: z.string().optional(),
-  ${resource.fields.filter(f => f.searchable || f.type === 'boolean' || f.type === 'enum').map(f => 
-    `${f.name}: z.string().optional()`
-  ).join(',\n  ')}
-});`;
-
-    return {
-      create: createSchema,
-      update: updateSchema,
-      query: querySchema
-    };
   }
 }

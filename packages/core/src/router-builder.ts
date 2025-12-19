@@ -33,7 +33,8 @@ export class RouterBuilder {
     const imports = [
       `import { fromHono } from 'chanfana';`,
       `import { Hono } from 'hono';`,
-      ...endpoints.map(ep => `import { ${ep.name} } from './endpoints/${this.toKebabCase(ep.name)}';`)
+      `import type { Env } from './types.js';`,
+      ...endpoints.map(ep => `import { ${ep.name} } from './endpoints/${this.toKebabCase(ep.name)}.js';`)
     ].join('\n');
 
     const endpointRegistrations = config.resources.flatMap(resource => {
@@ -70,20 +71,11 @@ export default app;`;
   }
 
   private static generateTypes(config: EdgeBaasConfig, schemas: any[]): string {
-    const typeExports = schemas.map(schema => 
-      schema.typeExports.join('\n')
-    ).join('\n\n');
-
-    const envType = `type Env = { DB: D1Database };`;
+    const envType = `import type { D1Database } from '@cloudflare/workers-types';\n\nexport type Env = { DB: D1Database };`;
 
     return `${envType}
 
-${typeExports}
-
-// Combined type for all resources
-export type Resources = {
-${config.resources.map(r => `  ${r.name}: ${this.capitalize(r.name)};`).join('\n')}
-};`;
+// Type definitions are exported from individual schema files`;
   }
 
   private static capitalize(str: string): string {
